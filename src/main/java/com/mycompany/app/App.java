@@ -1,26 +1,20 @@
 package com.qahub.ui;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.PWA;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.router.Route;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Route("")
-@PWA(name = "QAHub", shortName = "QAHub")
-@CssImport("styles/shared-styles.css")
 public class MainView extends VerticalLayout {
 
     private List<TestCase> testCases = new ArrayList<>();
@@ -101,4 +95,4 @@ public class MainView extends VerticalLayout {
             return tags;
         }
     }
-} 
+}
