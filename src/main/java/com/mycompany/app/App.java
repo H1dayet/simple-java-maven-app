@@ -1,98 +1,85 @@
-package com.qahub.ui;
+package com.qahub;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.router.Route;
-
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route("")
-public class MainView extends VerticalLayout {
+public class TestCaseServlet extends HttpServlet {
+    private final List<String> testCases = new ArrayList<>();
 
-    private List<TestCase> testCases = new ArrayList<>();
-    private Grid<TestCase> grid = new Grid<>(TestCase.class);
-
-    public MainView() {
-        add(new H1("QAHub - Test Case Management"));
-
-        Button addButton = new Button("Add Test Case", event -> openAddDialog());
-        add(addButton);
-
-        grid.setColumns("title", "priority", "tags");
-        grid.setItems(testCases);
-
-        add(grid);
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String title = request.getParameter("title");
+        if (title != null && !title.isEmpty()) {
+            testCases.add(title);
+        }
+        request.setAttribute("testCases", testCases);
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
-    private void openAddDialog() {
-        Dialog dialog = new Dialog();
-        dialog.setWidth("400px");
-
-        TextField titleField = new TextField("Title");
-        TextArea descriptionField = new TextArea("Description");
-
-        ComboBox<String> priorityBox = new ComboBox<>("Priority");
-        priorityBox.setItems("Low", "Medium", "High");
-
-        TextField tagsField = new TextField("Tags (comma-separated)");
-
-        Button saveButton = new Button("Save", e -> {
-            String title = titleField.getValue();
-            String desc = descriptionField.getValue();
-            String priority = priorityBox.getValue();
-            String tags = tagsField.getValue();
-
-            if (title.isEmpty() || priority == null) {
-                Notification.show("Title and Priority are required");
-                return;
-            }
-
-            TestCase testCase = new TestCase(title, desc, priority, tags);
-            testCases.add(testCase);
-            grid.setItems(testCases);
-            dialog.close();
-        });
-
-        VerticalLayout formLayout = new VerticalLayout(titleField, descriptionField, priorityBox, tagsField, saveButton);
-        dialog.add(formLayout);
-        dialog.open();
-    }
-
-    public static class TestCase {
-        private String title;
-        private String description;
-        private String priority;
-        private String tags;
-
-        public TestCase(String title, String description, String priority, String tags) {
-            this.title = title;
-            this.description = description;
-            this.priority = priority;
-            this.tags = tags;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getPriority() {
-            return priority;
-        }
-
-        public String getTags() {
-            return tags;
-        }
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("testCases", testCases);
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }
+
+// File: src/main/webapp/WEB-INF/web.xml
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="3.1">
+    <servlet>
+        <servlet-name>TestCaseServlet</servlet-name>
+        <servlet-class>com.qahub.TestCaseServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TestCaseServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>
+
+// File: src/main/webapp/index.jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QAHub</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-5">
+<div class="container">
+    <h1 class="mb-4">QAHub - Test Case Management</h1>
+    <form method="post" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="title" class="form-control" placeholder="Enter test case title" required>
+            <button class="btn btn-primary" type="submit">Add Test Case</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Test Case Title</th>
+            </tr>
+        </thead>
+        <tbody>
+        <% 
+            List<String> testCases = (List<String>) request.getAttribute("testCases");
+            if (testCases != null) {
+                int i = 1;
+                for (String title : testCases) {
+        %>
+            <tr>
+                <td><%= i++ %></td>
+                <td><%= title %></td>
+            </tr>
+        <% 
+                } 
+            } 
+        %>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
