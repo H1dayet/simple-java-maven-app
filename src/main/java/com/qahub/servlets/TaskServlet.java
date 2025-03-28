@@ -4,9 +4,9 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 
-public class TaskServlet extends HttpServlet {
+public class ProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("username", "John Doe");
-        req.getRequestDispatcher("/dashboard.jsp").forward(req, resp);
+        req.setAttribute("userEmail", "john.doe@example.com");
+        req.getRequestDispatcher("/profile.jsp").forward(req, resp);
     }
 }

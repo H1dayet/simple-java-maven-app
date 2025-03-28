@@ -6,15 +6,18 @@
 </head>
 <body class="bg-light py-5">
     <div class="container">
-        <h2 class="text-center mb-4">Create a New Task</h2>
-        <form class="card p-4 mx-auto" style="max-width: 600px;">
+        <div class="text-center mb-4">
+            <h2>Create a New Task</h2>
+            <p class="text-muted">Add task details and set its priority</p>
+        </div>
+        <form class="card p-4 mx-auto shadow-sm" style="max-width: 600px;">
             <div class="mb-3">
                 <label class="form-label">Task Name:</label>
-                <input type="text" name="taskName" class="form-control" required />
+                <input type="text" name="taskName" class="form-control" placeholder="Enter task name" required />
             </div>
             <div class="mb-3">
                 <label class="form-label">Description:</label>
-                <textarea name="description" class="form-control" required></textarea>
+                <textarea name="description" class="form-control" placeholder="Enter description..." required></textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Priority:</label>
@@ -24,9 +27,12 @@
                     <option value="Low">Low</option>
                 </select>
             </div>
-            <div class="d-flex justify-content-end">
-                <input type="submit" value="Add Task" class="btn btn-primary me-2" />
-                <input type="reset" value="Clear" class="btn btn-outline-secondary" />
+            <div class="d-flex justify-content-between">
+                <div>
+                    <input type="submit" value="Add Task" class="btn btn-primary" />
+                    <input type="reset" value="Clear" class="btn btn-outline-secondary ms-2" />
+                </div>
+                <a href="tasks" class="btn btn-secondary">Back to Dashboard</a>
             </div>
         </form>
     </div>
