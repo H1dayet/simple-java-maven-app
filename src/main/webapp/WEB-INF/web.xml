@@ -5,8 +5,9 @@
 
     <servlet>
         <servlet-name>TaskServlet</servlet-name>
-        <servlet-class>com.qahub.servlets.TaskServlet</servlet-class>
+        <servlet-class>com.tasktrackr.servlets.TaskServlet</servlet-class>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>TaskServlet</servlet-name>
         <url-pattern>/tasks</url-pattern>
@@ -14,11 +15,11 @@
 
     <servlet>
         <servlet-name>ProfileServlet</servlet-name>
-        <servlet-class>com.qahub.servlets.ProfileServlet</servlet-class>
+        <servlet-class>com.tasktrackr.servlets.ProfileServlet</servlet-class>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>ProfileServlet</servlet-name>
         <url-pattern>/profile</url-pattern>
     </servlet-mapping>
-
 </web-app>
