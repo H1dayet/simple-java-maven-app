@@ -74,15 +74,25 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Chrome and ChromeDriver
+    - name: Install jq
+      run: sudo apt-get install -y jq
+
+    - name: Install Chrome for Testing and ChromeDriver
       run: |
-        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        sudo apt-get update
-        sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
-        CHROME_DRIVER_VERSION=134.0.0.0
-        wget https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
-        unzip chromedriver_linux64.zip
-        sudo mv chromedriver /usr/bin/chromedriver
+        CHROME_INFO=$(curl -sSL https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json)
+        DRIVER_URL=$(echo "$CHROME_INFO" | jq -r '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
+        CHROME_URL=$(echo "$CHROME_INFO" | jq -r '.channels.Stable.downloads.chrome[] | select(.platform=="linux64") | .url')
+
+        # Install Chrome
+        wget -O chrome-linux.zip "$CHROME_URL"
+        unzip chrome-linux.zip
+        sudo mv chrome-linux64 /opt/chrome
+        sudo ln -s /opt/chrome/chrome /usr/bin/google-chrome
+
+        # Install ChromeDriver
+        wget -O chromedriver.zip "$DRIVER_URL"
+        unzip chromedriver.zip
+        sudo mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
         sudo chmod +x /usr/bin/chromedriver
 
     - name: Verify installation
