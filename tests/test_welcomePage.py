@@ -20,8 +20,15 @@ class TestWelcomePage:
     def test_welcome_page_navigation(self):
         self.driver.get("http://localhost:8080/")
 
-        WebDriverWait(self.driver, 15).until(
-            EC.element_to_be_clickable((By.LINK_TEXT, "Go to Dashboard"))
-        ).click()
+        print(">>> Page source at load:\n", self.driver.page_source[:1000])  # optional: crop for logs
+
+        try:
+            WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.LINK_TEXT, "Go to Dashboard"))
+            ).click()
+        except Exception as e:
+            print(">>> Failed to find or click 'Go to Dashboard'")
+            print(self.driver.page_source)
+            raise e
 
         assert "Dashboard" in self.driver.title or "dashboard" in self.driver.current_url.lower()
