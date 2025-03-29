@@ -21,6 +21,12 @@ jobs:
     - name: Build WAR with Maven
       run: mvn clean package
 
+    - name: Upload WAR file
+      uses: actions/upload-artifact@v4
+      with:
+        name: war-artifact
+        path: target/*.war
+
   security-checks:
     runs-on: ubuntu-latest
     needs: build
@@ -50,7 +56,7 @@ jobs:
     needs: build
 
     services:
-      web:
+      tomcat:
         image: tomcat:9.0
         ports:
           - 8080:8080
@@ -58,28 +64,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Download WAR file from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: war-artifact
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
-    - name: Install Chrome and Matching ChromeDriver
+    - name: Install Chrome and ChromeDriver
       run: |
-        sudo apt-get update
-        sudo apt-get install -y wget unzip jq apt-transport-https
-
-        # Install Chrome
         wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        sudo apt install -y ./google-chrome-stable_current_amd64.deb
+        sudo apt-get update
+        sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
 
-        # Fetch latest known good ChromeDriver version for stable Chrome
-        CHROMEDRIVER_VERSION=$(curl -sS https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json \
-          | jq -r '.channels.Stable.version')
-
-        # Download and install the correct ChromeDriver version
-        wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip
-        unzip chromedriver-linux64.zip
-        sudo mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
+        CHROME_DRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE_134)
+        wget https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip
+        sudo mv chromedriver /usr/bin/chromedriver
         sudo chmod +x /usr/bin/chromedriver
 
     - name: Verify installation
@@ -91,13 +95,18 @@ jobs:
       run: |
         pip install selenium pytest
 
-    - name: Wait for Tomcat to be ready
+    - name: Copy WAR to Tomcat container
       run: |
-        until curl -s http://localhost:8080 > /dev/null; do
-          echo "Waiting for Tomcat..."
+        CONTAINER_ID=$(docker ps -q --filter ancestor=tomcat:9.0)
+        docker cp *.war $CONTAINER_ID:/usr/local/tomcat/webapps/ROOT.war
+
+    - name: Wait for application to be available
+      run: |
+        echo "Waiting for app to deploy..."
+        for i in {1..30}; do
+          curl -s http://localhost:8080/ | grep -q "Go to Dashboard" && break
           sleep 2
         done
-        echo "Tomcat is up!"
 
     - name: Run Selenium Tests (Headless Chrome)
       run: pytest tests/
