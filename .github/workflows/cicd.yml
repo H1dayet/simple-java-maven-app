@@ -45,3 +45,47 @@ jobs:
     - name: Gitleaks scan
       run: gitleaks detect --source . --report-path=gitleaks-report.json --report-format=json
 
+  selenium-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      web:
+        image: tomcat:9.0
+        ports:
+          - 8080:8080
+        options: >-
+          --health-cmd "curl -f http://localhost:8080 || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        sudo apt-get install -y chromium-chromedriver
+        sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+
+    - name: Install Python dependencies
+      run: |
+        pip install selenium pytest
+
+    - name: Wait for Tomcat to be ready
+      run: |
+        until curl -s http://localhost:8080 > /dev/null; do
+          echo "Waiting for Tomcat..."
+          sleep 2
+        done
+        echo "Tomcat is up!"
+
+    - name: Run Selenium Tests (Headless Chrome)
+      run: pytest tests/
