@@ -63,30 +63,23 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Google Chrome & ChromeDriver
+    - name: Install Chrome and ChromeDriver
       run: |
-        # Install the latest Google Chrome
         wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
         sudo apt-get update
         sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
-
-        # Extract the major version
-        CHROME_MAJOR_VERSION=$(google-chrome --version | grep -oP '\d+' | head -1)
-
-        # Get compatible ChromeDriver
-        CHROMEDRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION)
-
-        echo "Installing ChromeDriver version $CHROMEDRIVER_VERSION for Chrome $CHROME_MAJOR_VERSION"
-
-        wget https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip
+        
+        CHROME_DRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+        wget https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
         unzip chromedriver_linux64.zip
         sudo mv chromedriver /usr/bin/chromedriver
         sudo chmod +x /usr/bin/chromedriver
 
-        # Confirm versions
+
+    - name: Verify installation
+      run: |
         google-chrome --version
         chromedriver --version
-
 
 
     - name: Install Python dependencies
