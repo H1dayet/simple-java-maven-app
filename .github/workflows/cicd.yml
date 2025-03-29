@@ -70,13 +70,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
 
-        # Get Chrome version, extract only the major.minor.build
-        CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+        # Extract the major version
+        CHROME_MAJOR_VERSION=$(google-chrome --version | grep -oP '\d+' | head -1)
 
-        # Get the exact matching ChromeDriver version
-        CHROMEDRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION)
+        # Get compatible ChromeDriver
+        CHROMEDRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION)
 
-        echo "Installing ChromeDriver version $CHROMEDRIVER_VERSION for Chrome $CHROME_VERSION"
+        echo "Installing ChromeDriver version $CHROMEDRIVER_VERSION for Chrome $CHROME_MAJOR_VERSION"
 
         wget https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip
         unzip chromedriver_linux64.zip
@@ -86,6 +86,7 @@ jobs:
         # Confirm versions
         google-chrome --version
         chromedriver --version
+
 
 
     - name: Install Python dependencies
