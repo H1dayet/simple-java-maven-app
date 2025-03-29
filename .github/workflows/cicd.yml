@@ -87,13 +87,18 @@ jobs:
         wget -O chrome-linux.zip "$CHROME_URL"
         unzip chrome-linux.zip
         sudo mv chrome-linux64 /opt/chrome
-        sudo ln -s /opt/chrome/chrome /usr/bin/google-chrome
+
+        # Only create symlink if it doesn't exist
+        if ! command -v google-chrome > /dev/null; then
+          sudo ln -s /opt/chrome/chrome /usr/bin/google-chrome
+        fi
 
         # Install ChromeDriver
         wget -O chromedriver.zip "$DRIVER_URL"
         unzip chromedriver.zip
         sudo mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
         sudo chmod +x /usr/bin/chromedriver
+
 
     - name: Verify installation
       run: |
