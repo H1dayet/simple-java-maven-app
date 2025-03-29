@@ -1,6 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pytest
 
 class TestWelcomePage:
@@ -17,5 +19,10 @@ class TestWelcomePage:
 
     def test_welcome_page_navigation(self):
         self.driver.get("http://localhost:8080/")
-        self.driver.find_element(By.LINK_TEXT, "Go to Dashboard").click()
+
+        # Wait until the "Go to Dashboard" link is present
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.LINK_TEXT, "Go to Dashboard"))
+        ).click()
+
         assert "Dashboard" in self.driver.title or "dashboard" in self.driver.current_url.lower()
